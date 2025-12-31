@@ -26,34 +26,41 @@ export default function WrappedSummary({ trips }: WrappedSummaryProps) {
 
   return (
     <div className="space-y-4">
-      {/* The card that will be captured as image */}
+      {/* The card that will be captured as image - using inline styles for html2canvas compatibility */}
       <div
         ref={cardRef}
-        className="bg-gradient-to-br from-purple-600 to-blue-600 p-6 rounded-lg shadow-lg text-white"
+        style={{
+          background: 'linear-gradient(to bottom right, #9333ea, #2563eb)',
+          padding: '24px',
+          borderRadius: '8px',
+          color: 'white',
+        }}
       >
-        <h2 className="text-2xl font-bold mb-4">🌍 Your Travel Wrapped {currentYear}</h2>
+        <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>
+          🌍 Your Travel Wrapped {currentYear}
+        </h2>
         
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="bg-white/20 backdrop-blur p-4 rounded-lg text-center">
-            <p className="text-3xl font-bold">{stats.totalTrips}</p>
-            <p className="text-sm opacity-90">Total Trips</p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+          <div style={{ backgroundColor: 'rgba(255,255,255,0.2)', padding: '16px', borderRadius: '8px', textAlign: 'center' }}>
+            <p style={{ fontSize: '30px', fontWeight: 'bold' }}>{stats.totalTrips}</p>
+            <p style={{ fontSize: '14px', opacity: 0.9 }}>Total Trips</p>
           </div>
-          <div className="bg-white/20 backdrop-blur p-4 rounded-lg text-center">
-            <p className="text-3xl font-bold">{stats.totalDistance.toLocaleString()}</p>
-            <p className="text-sm opacity-90">Kilometers</p>
+          <div style={{ backgroundColor: 'rgba(255,255,255,0.2)', padding: '16px', borderRadius: '8px', textAlign: 'center' }}>
+            <p style={{ fontSize: '30px', fontWeight: 'bold' }}>{stats.totalDistance.toLocaleString()}</p>
+            <p style={{ fontSize: '14px', opacity: 0.9 }}>Kilometers</p>
           </div>
-          <div className="bg-white/20 backdrop-blur p-4 rounded-lg text-center col-span-2">
-            <p className="text-3xl font-bold">{stats.citiesVisited.length}</p>
-            <p className="text-sm opacity-90">Cities Visited</p>
+          <div style={{ backgroundColor: 'rgba(255,255,255,0.2)', padding: '16px', borderRadius: '8px', textAlign: 'center', gridColumn: 'span 2' }}>
+            <p style={{ fontSize: '30px', fontWeight: 'bold' }}>{stats.citiesVisited.length}</p>
+            <p style={{ fontSize: '14px', opacity: 0.9 }}>Cities Visited</p>
           </div>
         </div>
 
         {stats.topRoutes.length > 0 && (
           <div>
-            <h3 className="font-semibold mb-2">🔥 Top Routes</h3>
-            <ul className="space-y-1">
+            <h3 style={{ fontWeight: '600', marginBottom: '8px' }}>🔥 Top Routes</h3>
+            <ul style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               {stats.topRoutes.slice(0, 3).map((route, index) => (
-                <li key={route.route} className="text-sm opacity-90">
+                <li key={route.route} style={{ fontSize: '14px', opacity: 0.9 }}>
                   {index + 1}. {route.route} ({route.count}x)
                 </li>
               ))}
@@ -61,19 +68,19 @@ export default function WrappedSummary({ trips }: WrappedSummaryProps) {
           </div>
         )}
 
-        <div className="mt-4 pt-4 border-t border-white/30">
-          <p className="text-sm opacity-75 text-center">
+        <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.3)' }}>
+          <p style={{ fontSize: '14px', opacity: 0.75, textAlign: 'center' }}>
             You&apos;re in the top 5% of travelers! 🏆
           </p>
         </div>
 
         {/* Branding for shared image */}
-        <div className="mt-4 text-center">
-          <p className="text-xs opacity-50">✈️ Travel Wrapped</p>
+        <div style={{ marginTop: '16px', textAlign: 'center' }}>
+          <p style={{ fontSize: '12px', opacity: 0.5 }}>✈️ Travel Wrapped</p>
         </div>
       </div>
 
-      {/* Download button - outside the captured area */}
+      {/* Download button */}
       <button
         onClick={handleDownload}
         className="w-full bg-white text-purple-600 font-medium py-3 px-4 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-center gap-2 shadow-md"
