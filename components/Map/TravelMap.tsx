@@ -2,32 +2,56 @@
 
 import { useEffect, useState } from 'react';
 import { Trip } from '@/types/trip';
+import type { ComponentType } from 'react';
 
 interface TravelMapProps {
   trips: Trip[];
 }
 
+// Types for react-leaflet components
+interface MapComponents {
+  MapContainer: ComponentType<{
+    center: [number, number];
+    zoom: number;
+    className?: string;
+    children?: React.ReactNode;
+  }>;
+  TileLayer: ComponentType<{
+    attribution: string;
+    url: string;
+  }>;
+  Polyline: ComponentType<{
+    positions: [number, number][];
+    color?: string;
+    weight?: number;
+    opacity?: number;
+  }>;
+  CircleMarker: ComponentType<{
+    center: [number, number];
+    radius?: number;
+    fillColor?: string;
+    color?: string;
+    weight?: number;
+    fillOpacity?: number;
+    children?: React.ReactNode;
+  }>;
+  Tooltip: ComponentType<{
+    children?: React.ReactNode;
+  }>;
+}
+
 export default function TravelMap({ trips }: TravelMapProps) {
-  const [mapComponents, setMapComponents] = useState<{
-    MapContainer: any;
-    TileLayer: any;
-    Polyline: any;
-    CircleMarker: any;
-    Tooltip: any;
-  } | null>(null);
+  const [mapComponents, setMapComponents] = useState<MapComponents | null>(null);
 
   useEffect(() => {
     // Dynamic import for client-side only (Leaflet doesn't work with SSR)
-    Promise.all([
-      import('react-leaflet'),
-      import('leaflet/dist/leaflet.css'),
-    ]).then(([reactLeaflet]) => {
+    import('react-leaflet').then((mod) => {
       setMapComponents({
-        MapContainer: reactLeaflet.MapContainer,
-        TileLayer: reactLeaflet.TileLayer,
-        Polyline: reactLeaflet.Polyline,
-        CircleMarker: reactLeaflet.CircleMarker,
-        Tooltip: reactLeaflet.Tooltip,
+        MapContainer: mod.MapContainer,
+        TileLayer: mod.TileLayer,
+        Polyline: mod.Polyline,
+        CircleMarker: mod.CircleMarker,
+        Tooltip: mod.Tooltip,
       });
     });
   }, []);
@@ -58,7 +82,7 @@ export default function TravelMap({ trips }: TravelMapProps) {
     locations.get(toKey)!.count++;
   });
 
-  // Calculate center based on trips or default to Europe
+  // Default center on Europe
   const defaultCenter: [number, number] = [48.8566, 2.3522];
   
   return (
