@@ -1,93 +1,86 @@
 'use client';
 
-import { useRef } from 'react';
 import { Trip, TripStats } from '@/types/trip';
-import { calculateStats } from '@/lib/utils';
-import { useDownloadImage } from '@/hooks/useDownloadImage';
+import { calculateStats, calculateCarbonFootprint } from '@/lib/utils';
 
 interface WrappedSummaryProps {
   trips: Trip[];
 }
 
-export default function WrappedSummary({ trips }: WrappedSummaryProps) {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const { downloadImage } = useDownloadImage();
+const transportEmoji: Record<string, string> = {
+  plane: '✈️',
+  train: '🚄',
+  car: '🚗',
+  bus: '🚌',
+  boat: '🚢',
+};
 
+export default function WrappedSummary({ trips }: WrappedSummaryProps) {
   if (trips.length === 0) {
     return null;
   }
 
   const stats: TripStats = calculateStats(trips);
-  const currentYear = new Date().getFullYear();
-
-  const handleDownload = () => {
-    downloadImage(cardRef, `travel-wrapped-${currentYear}.png`);
-  };
+  const carbon = calculateCarbonFootprint(trips);
 
   return (
-    <div className="space-y-4">
-      {/* The card that will be captured as image - using inline styles for html2canvas compatibility */}
-      <div
-        ref={cardRef}
-        style={{
-          background: 'linear-gradient(to bottom right, #9333ea, #2563eb)',
-          padding: '24px',
-          borderRadius: '8px',
-          color: 'white',
-        }}
-      >
-        <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>
-          🌍 Your Travel Wrapped {currentYear}
-        </h2>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
-          <div style={{ backgroundColor: 'rgba(255,255,255,0.2)', padding: '16px', borderRadius: '8px', textAlign: 'center' }}>
-            <p style={{ fontSize: '30px', fontWeight: 'bold' }}>{stats.totalTrips}</p>
-            <p style={{ fontSize: '14px', opacity: 0.9 }}>Total Trips</p>
-          </div>
-          <div style={{ backgroundColor: 'rgba(255,255,255,0.2)', padding: '16px', borderRadius: '8px', textAlign: 'center' }}>
-            <p style={{ fontSize: '30px', fontWeight: 'bold' }}>{stats.totalDistance.toLocaleString()}</p>
-            <p style={{ fontSize: '14px', opacity: 0.9 }}>Kilometers</p>
-          </div>
-          <div style={{ backgroundColor: 'rgba(255,255,255,0.2)', padding: '16px', borderRadius: '8px', textAlign: 'center', gridColumn: 'span 2' }}>
-            <p style={{ fontSize: '30px', fontWeight: 'bold' }}>{stats.citiesVisited.length}</p>
-            <p style={{ fontSize: '14px', opacity: 0.9 }}>Cities Visited</p>
-          </div>
+    <div className="bg-gradient-to-br from-purple-600 to-blue-600 p-6 rounded-lg shadow-lg text-white">
+      <h2 className="text-2xl font-bold mb-4">🌍 Your Travel Wrapped 2025</h2>
+      
+      <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="bg-white/20 backdrop-blur p-4 rounded-lg text-center">
+          <p className="text-3xl font-bold">{stats.totalTrips}</p>
+          <p className="text-sm opacity-90">Total Trips</p>
         </div>
-
-        {stats.topRoutes.length > 0 && (
-          <div>
-            <h3 style={{ fontWeight: '600', marginBottom: '8px' }}>🔥 Top Routes</h3>
-            <ul style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              {stats.topRoutes.slice(0, 3).map((route, index) => (
-                <li key={route.route} style={{ fontSize: '14px', opacity: 0.9 }}>
-                  {index + 1}. {route.route} ({route.count}x)
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.3)' }}>
-          <p style={{ fontSize: '14px', opacity: 0.75, textAlign: 'center' }}>
-            You&apos;re in the top 5% of travelers! 🏆
-          </p>
+        <div className="bg-white/20 backdrop-blur p-4 rounded-lg text-center">
+          <p className="text-3xl font-bold">{stats.totalDistance.toLocaleString()}</p>
+          <p className="text-sm opacity-90">Kilometers</p>
         </div>
-
-        {/* Branding for shared image */}
-        <div style={{ marginTop: '16px', textAlign: 'center' }}>
-          <p style={{ fontSize: '12px', opacity: 0.5 }}>✈️ Travel Wrapped</p>
+        <div className="bg-white/20 backdrop-blur p-4 rounded-lg text-center">
+          <p className="text-3xl font-bold">{stats.citiesVisited.length}</p>
+          <p className="text-sm opacity-90">Cities Visited</p>
+        </div>
+        <div className="bg-white/20 backdrop-blur p-4 rounded-lg text-center">
+          <p className="text-3xl font-bold">{carbon.totalCO2}</p>
+          <p className="text-sm opacity-90">kg CO₂</p>
         </div>
       </div>
 
-      {/* Download button */}
-      <button
-        onClick={handleDownload}
-        className="w-full bg-white text-purple-600 font-medium py-3 px-4 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-center gap-2 shadow-md"
-      >
-        <span>📥</span>
-        Download & Share
-      </button>
+      {/* Carbon Breakdown */}
+      {Object.keys(carbon.byTransport).length > 0 && (
+        <div className="mb-4">
+          <h3 className="font-semibold mb-2">🌱 Carbon Footprint</h3>
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(carbon.byTransport).map(([mode, co2]) => (
+              <span key={mode} className="bg-white/20 px-3 py-1 rounded-full text-sm">
+                {transportEmoji[mode]} {co2} kg
+              </span>
+            ))}
+          </div>
+          <p className="text-xs opacity-75 mt-2">
+            🌳 {carbon.equivalents.trees} trees needed to offset annually
+          </p>
+        </div>
+      )}
+
+      {stats.topRoutes.length > 0 && (
+        <div>
+          <h3 className="font-semibold mb-2">🔥 Top Routes</h3>
+          <ul className="space-y-1">
+            {stats.topRoutes.slice(0, 3).map((route, index) => (
+              <li key={route.route} className="text-sm opacity-90">
+                {index + 1}. {route.route} ({route.count}x)
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <div className="mt-4 pt-4 border-t border-white/30">
+        <p className="text-sm opacity-75 text-center">
+          You&apos;re in the top 5% of travelers! 🏆
+        </p>
+      </div>
     </div>
   );
 }

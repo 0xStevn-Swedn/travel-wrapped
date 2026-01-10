@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { Trip } from '@/types/trip';
+import RoutePolyline from './RoutePolyline';
 import type { ComponentType, ReactNode } from 'react';
 
 interface TravelMapProps {
@@ -78,7 +79,6 @@ function MapController({
       map.invalidateSize();
       map.fitBounds(bounds, { padding: [50, 50] });
       
-      // Wait for animation then signal complete
       setTimeout(onFitComplete, 500);
     }
   }, [map, trips, shouldFit, onFitComplete]);
@@ -103,6 +103,7 @@ export default function TravelMap({ trips }: TravelMapProps) {
     color?: string;
     weight?: number;
     opacity?: number;
+    dashArray?: string;
   }> | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [Marker, setMarker] = useState<ComponentType<any> | null>(null);
@@ -136,7 +137,6 @@ export default function TravelMap({ trips }: TravelMapProps) {
   const captureMap = useCallback(async () => {
     if (!mapRef.current) return;
     
-    // Wait for tiles to load
     await new Promise(resolve => setTimeout(resolve, 1500));
     
     try {
@@ -205,7 +205,6 @@ export default function TravelMap({ trips }: TravelMapProps) {
 
   const defaultCenter: [number, number] = [30, 0];
 
-  // Create HTML-based marker icon
   const createMarkerIcon = (count: number) => {
     const size = Math.min(16 + count * 4, 32);
     return divIcon({
@@ -244,17 +243,12 @@ export default function TravelMap({ trips }: TravelMapProps) {
             onFitComplete={onFitComplete}
           />
           
-          {/* Draw lines */}
+          {/* Draw routes with real roads when applicable */}
           {trips.map((trip) => (
-            <Polyline
-              key={trip.id}
-              positions={[
-                [trip.from.lat, trip.from.lng],
-                [trip.to.lat, trip.to.lng],
-              ]}
-              color="#3b82f6"
-              weight={3}
-              opacity={0.8}
+            <RoutePolyline 
+              key={trip.id} 
+              trip={trip} 
+              Polyline={Polyline}
             />
           ))}
 
@@ -270,6 +264,27 @@ export default function TravelMap({ trips }: TravelMapProps) {
           ))}
         </MapContainer>
       </div>
+
+      {/* Legend */}
+      {trips.length > 0 && (
+        <div className="flex flex-wrap gap-3 text-sm text-gray-600">
+          <span className="flex items-center gap-1">
+            <span className="w-4 h-0.5 bg-blue-500" style={{ borderTop: '2px dashed #3b82f6' }}></span> Plane
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-4 h-0.5 bg-green-500"></span> Train
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-4 h-0.5 bg-amber-500"></span> Car
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-4 h-0.5 bg-purple-500"></span> Bus
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-4 h-0.5 bg-cyan-500"></span> Boat
+          </span>
+        </div>
+      )}
 
       {trips.length > 0 && (
         <button

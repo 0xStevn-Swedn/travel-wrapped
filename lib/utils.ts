@@ -47,3 +47,48 @@ export function calculateStats(trips: Trip[]): TripStats {
     topRoutes,
   };
 }
+
+// CO2 emissions in grams per km per passenger
+const CO2_PER_KM: Record<string, number> = {
+  plane: 255,    // Average flight
+  train: 41,     // Electric train
+  car: 171,      // Average car
+  bus: 89,       // Coach bus
+  boat: 245,     // Ferry
+};
+
+export function calculateCarbonFootprint(trips: Trip[]): {
+  totalCO2: number;
+  byTransport: Record<string, number>;
+  equivalents: {
+    trees: number;
+    drivingKm: number;
+  };
+} {
+  const byTransport: Record<string, number> = {};
+  let totalCO2 = 0;
+
+  trips.forEach(trip => {
+    const distance = calculateDistance(trip.from, trip.to);
+    const mode = trip.transportMode || 'plane';
+    const co2 = distance * (CO2_PER_KM[mode] || CO2_PER_KM.plane);
+    
+    totalCO2 += co2;
+    byTransport[mode] = (byTransport[mode] || 0) + co2;
+  });
+
+  // Convert grams to kg
+  totalCO2 = Math.round(totalCO2 / 1000);
+  Object.keys(byTransport).forEach(key => {
+    byTransport[key] = Math.round(byTransport[key] / 1000);
+  });
+
+  return {
+    totalCO2,
+    byTransport,
+    equivalents: {
+      trees: Math.round(totalCO2 / 21), // 1 tree absorbs ~21kg CO2/year
+      drivingKm: Math.round(totalCO2 / 0.171), // Convert back to driving equivalent
+    },
+  };
+}
