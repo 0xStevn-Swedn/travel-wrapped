@@ -5,6 +5,7 @@ import { TripForm } from '@/components/TripForm';
 import { TripList } from '@/components/TripList';
 import { WrappedSummary } from '@/components/WrappedSummary';
 import { TimelineImport } from '@/components/Import';
+import { MintNFT } from '@/components/MintNFT';
 import { useTrips } from '@/hooks/useTrips';
 
 export default function Home() {
@@ -43,6 +44,7 @@ export default function Home() {
           <div className="lg:col-span-2 space-y-6">
             <TravelMap trips={trips} />
             <WrappedSummary trips={trips} />
+            <MintNFT trips={trips} />
           </div>
         </div>
       </div>

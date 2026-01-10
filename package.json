@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "ethers": "^6.16.0",
     "html2canvas": "^1.4.1",
     "leaflet": "^1.9.4",
     "leaflet-simple-map-screenshoter": "^0.5.0",
