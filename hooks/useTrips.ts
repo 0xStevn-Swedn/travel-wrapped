@@ -45,5 +45,9 @@ export function useTrips() {
     setTrips([]);
   }, []);
 
-  return { trips, addTrip, removeTrip, clearTrips };
+  const importTrips = useCallback((newTrips: Trip[]) => {
+    setTrips(prev => [...prev, ...newTrips]);
+  }, []);
+
+  return { trips, addTrip, removeTrip, clearTrips, importTrips };
 }

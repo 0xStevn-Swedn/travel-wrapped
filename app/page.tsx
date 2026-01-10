@@ -4,10 +4,11 @@ import { TravelMap } from '@/components/Map';
 import { TripForm } from '@/components/TripForm';
 import { TripList } from '@/components/TripList';
 import { WrappedSummary } from '@/components/WrappedSummary';
+import { TimelineImport } from '@/components/Import';
 import { useTrips } from '@/hooks/useTrips';
 
 export default function Home() {
-  const { trips, addTrip, removeTrip, clearTrips } = useTrips();
+  const { trips, addTrip, removeTrip, clearTrips, importTrips } = useTrips();
 
   return (
     <main className="min-h-screen bg-gray-100 py-8 px-4">
@@ -25,6 +26,7 @@ export default function Home() {
           {/* Left Column - Form and List */}
           <div className="space-y-6">
             <TripForm onAddTrip={addTrip} />
+            <TimelineImport onImport={importTrips} />
             <TripList trips={trips} onRemove={removeTrip} />
             
             {trips.length > 0 && (
